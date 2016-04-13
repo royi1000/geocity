@@ -18,39 +18,21 @@ def _get_city_db():
 
     
 class City(object):
-    """city GEO info class
-geonameid         : integer id of record in geonames database
-name              : name of geographical point (utf8) varchar(200)
-asciiname         : name of geographical point in plain ascii characters, varchar(200)
-alternatenames    : alternatenames, comma separated, ascii names automatically transliterated, convenience attribute from alternatename table, varchar(10000)
-latitude          : latitude in decimal degrees (wgs84)
-longitude         : longitude in decimal degrees (wgs84)
-feature class     : see http://www.geonames.org/export/codes.html, char(1)
-feature code      : see http://www.geonames.org/export/codes.html, varchar(10)
-country code      : ISO-3166 2-letter country code, 2 characters
-cc2               : alternate country codes, comma separated, ISO-3166 2-letter country code, 200 characters
-admin1 code       : fipscode (subject to change to iso code), see exceptions below, see file admin1Codes.txt for display names of this code; varchar(20)
-admin2 code       : code for the second administrative division, a county in the US, see file admin2Codes.txt; varchar(80)
-admin3 code       : code for third level administrative division, varchar(20)
-admin4 code       : code for fourth level administrative division, varchar(20)
-population        : bigint (8 byte int)
-elevation         : in meters, integer
-dem               : digital elevation model, srtm3 or gtopo30, average elevation of 3''x3'' (ca 90mx90m) or 30''x30'' (ca 900mx900m) area in meters, integer. srtm processed by cgiar/ciat.
-timezone          : the timezone id (see file timeZone.txt) varchar(40)
-modification date : date of last modification in yyyy-MM-dd format"""
+    """
+    City GEO info class
+    >>> City(city='petah tiqwa', cc='IL')
+    >>> c.latitude
+    32.08707
+    """
     CITY_DB = _get_city_db()
-    
+
     def __init__(self, city="jerusalem", cc="IL"):
-        """name = tuple(city_name, country_code)"""
+        """
+        get city name and optional country code
+        """
         self._city = city
         self._country_code = cc
         self._info = self.find_city(city, cc)
-
-    def set_info(self, city, country):
-        for i in self.CITY_DB:
-            if country in i[8] and (remove_accents(i[2].decode('utf8')).lower() == remove_accents(city.decode('utf8')).lower()):
-                return dict(name=i[1], asciiname=i[2], alternatenames=i[3], latitude=float(i[4]), longitude=float(i[5]), country_code=i[8], elevation=int(i[16]), timezone=i[17])
-        raise IndexError
 
     def get_info(self):
         return self._info
@@ -73,3 +55,23 @@ modification date : date of last modification in yyyy-MM-dd format"""
         elif len(res) > 1:
             raise IndexError('Too many matches ({})'.format(len(res)))
         return res[0]
+
+    @property
+    def latitude(self):
+        return self.get_info()['latitude']
+
+    @property
+    def longitude(self):
+        return self.get_info()['longitude']
+
+    @property
+    def elevation(self):
+        return self.get_info()['elevation']
+
+    @property
+    def timezone(self):
+        return self.get_info()['timezone']
+
+    @property
+    def names(self):
+        return self.get_info()['alternatenames']
