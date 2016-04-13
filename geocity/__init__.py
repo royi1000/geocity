@@ -1,4 +1,5 @@
 import sys
+import os
 import csv
 import unicodedata
 
@@ -11,7 +12,8 @@ def remove_accents(input_str):
         
 def _get_city_db():
     csv.field_size_limit(sys.maxsize)
-    with open('cities.txt', 'rb') as f:
+    cities_file = os.path.join(os.path.dirname(__file__), 'cities.txt')
+    with open(cities_file, 'rb') as f:
         r = csv.reader(f, delimiter='\t')
         city_db = list(r)
         return city_db
